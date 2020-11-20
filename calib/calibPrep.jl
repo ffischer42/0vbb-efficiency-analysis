@@ -1,10 +1,24 @@
-include("src/init.jl")
-include("src/fct.jl")
-data_type = "cal"
+function main(args)
+    return args
+end
+# Load inline arguments for worker unit
+meta_key_file, num_workers, this = main(ARGS)
+num_workers = parse(Int64, num_workers)
+this = parse(Int64, this)
+
+println("Dataset: " * meta_key_file)
+println("Worker " * string(this) * " of " * string(num_workers))
+#
+# Load packages and functions
+include("../src/init.jl")
+include("../src/fct.jl")
+include("../src/worker_fct.jl")
+data_type = "cal" # phy
 dataset = "v07.01"
 
-meta_key_file = "datasets/run0083-run0092-cal-analysis.txt";
-meta_keys = CSV.read(meta_key_file);
+#
+# Gather filepaths to Tier1 and Tier4 data
+meta_keys = CSV.read(meta_key_file, Table);
 channels = 0:1:36
 event_step = Int(1e4)
 
@@ -13,20 +27,26 @@ ddir = "/remote/ceph/group/gerda/data/phase2/blind/" * dataset * "/gen/"
 cd(ddir)
 filenames1 = []
 filenames4 = []
-for meta_key in meta_keys[1]
-    filename1 = ddir * glob("tier1/ged/" * data_type * "/" * split(meta_key, "-")[2] * "/" * meta_key * "*.root")[1]
-    filename4 = ddir * glob("tier4/all/" * data_type * "/" * split(meta_key, "-")[2] * "/" * meta_key * "*.root")[1]
+for meta_key in meta_keys
+    filename1 = ddir * glob("tier1/ged/" * data_type * "/" * split(meta_key[1], "-")[2] * "/" * meta_key[1] * "*.root")[1]
+    filename4 = ddir * glob("tier4/all/" * data_type * "/" * split(meta_key[1], "-")[2] * "/" * meta_key[1] * "*.root")[1]
     push!(filenames1, filename1)
     push!(filenames4, filename4)
 end
 cd(current_dir)
 
+
+#
+# Set base path depending on data type
 if data_type == "phy"
-    base_path = "pulses/data/raw_" * dataset * "/"
+    base_path = "../../waveforms/data/raw_" * dataset * "/"
 elseif data_type == "cal"
-    base_path = "pulses/calib/raw_" * dataset * "/"
+    base_path = "../../waveforms/calib/raw_" * dataset * "/"
 end
-log_file = base_path * "log.json"
+
+#
+# Load workers log file
+log_file = base_path * "log-" * string(this) * ".json"
 if !isdir(base_path)
     mkpath(base_path)
 end
@@ -38,6 +58,11 @@ if !isfile(log_file)
 else
     global log = JSON.parsefile(log_file)
 end;
+
+#
+# Select range for worker depending on number of workers
+filenames1 = get_share_for_worker(filenames1, num_workers, this)
+filenames4 = get_share_for_worker(filenames4, num_workers, this)
 
 for i in eachindex(filenames4)
     start_t = now()

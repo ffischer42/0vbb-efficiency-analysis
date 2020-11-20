@@ -1,3 +1,125 @@
+#########################################
+# Create mapping dictionary ############
+sim_to_channel = open(mapping_file) do f
+    mapping  = JSON.parse(f)["mapping"]
+    channels = Dict()
+    for ged in keys(mapping)
+        channels[mapping[ged]["sim"]] = [mapping[ged]["channel"], mapping[ged]["name"]]
+    end
+    return channels
+end;
+
+#########################################
+# Create mapping dictionary ############
+channel_to_name = open(mapping_file) do f
+    mapping  = JSON.parse(f)["mapping"]
+    channels = Dict()
+    for ged in keys(mapping)
+        channels[mapping[ged]["channel"]] = mapping[ged]["name"]
+    end
+    return channels
+end;
+
+#########################################
+# Create mapping dictionary ############
+parameters = open(parameters_file) do f
+    temp = JSON.parse(f)
+    temp["GTF45"] = temp["GTF45_2"]
+    return temp
+end;
+
+function root_to_typedtable(filename; hits_threshold=0.005, number_of_events=0, E_lim=0.3, mult_lim=1) # 0 = all
+    file = TFile(filename)
+
+    tree = file["fTree"];
+
+    tt = Table(eventnumber = tree.eventnumber[:],
+        hits_iddet   = tree.hits_iddet[:],
+        hits_totnum  = tree.hits_totnum[:],
+        hits_edep    = tree.hits_edep[:],
+        hits_xpos    = tree.hits_xpos[:] .* 10, # mm
+        hits_ypos    = tree.hits_ypos[:] .* 10, # mm
+        hits_zpos    = tree.hits_zpos[:] .* 10) # mm
+
+    #########################################
+    # Filter events without energy deposition
+    tt = tt |> @filter(_.hits_totnum != 0) |> Table;
+    tt = tt |> @filter(sum(_.hits_edep) >= E_lim) |> Table;
+
+    i = 1
+    if number_of_events != 0
+        i_max = number_of_events
+    else
+        i_max = size(tt, 1)
+    end
+    
+
+    evt_num      = []
+    multiplicity = []
+    iddet        = []
+    totnum       = []
+    edep         = []
+    position     = []
+
+    p = Progress(i_max, dt=0.5,
+                 barglyphs=BarGlyphs('|','█', ['▁' ,'▂' ,'▃' ,'▄' ,'▅' ,'▆', '▇'],' ','|',),
+                 barlen=10)
+    @info("Number of events = "*string(i_max))
+    @info("Separating events by detector id and filter by minimum energy deposition threshold = "*string(hits_threshold)*" MeV")
+    #########################################
+    # Separate events by detector ###########
+    while i <= i_max
+        multi = 0
+        for det in unique(tt[i].hits_iddet)
+            index = findall(x->x==det, tt[i].hits_iddet)
+            if sum( tt[i].hits_edep[ index ] ) >= hits_threshold
+                multi += 1
+                upside_down = 1
+                if parameters[sim_to_channel[det][2]]["upside_down"] == true
+                    upside_down = -1
+                end
+
+                hits_iddet_mapped = []
+                for i in index
+                    push!(hits_iddet_mapped, sim_to_channel[det][1])
+                end
+                push!(iddet, Array{Int64,1}(hits_iddet_mapped))
+                push!(edep,  tt[i].hits_edep[ index ])
+                push!(position, [ SVector{3}(([ tt[i].hits_xpos[k] .- parameters[sim_to_channel[det][2]]["detcenter_x"], 
+                                                tt[i].hits_ypos[k] .- parameters[sim_to_channel[det][2]]["detcenter_y"], 
+                                                upside_down .* (tt[i].hits_zpos[k] .- parameters[sim_to_channel[det][2]]["detcenter_z"] .+ upside_down * parameters[sim_to_channel[det][2]]["height"]/2) 
+                                    ] * u"mm")...) for k in index ])
+            end        
+        end
+        
+        j = 1
+        while j <= multi
+            push!(evt_num, tt[i].eventnumber)
+            push!(totnum, tt[i].hits_totnum)
+            push!(multiplicity, multi)
+            j += 1
+        end
+        next!(p)
+        i += 1
+    end
+    tt = nothing
+    #########################################
+    # Create output table ###################
+    filter_index = findall(x -> x == mult_lim, multiplicity)
+
+    events = Table(evtno = evt_num[filter_index], 
+        event_mult       = multiplicity[filter_index], 
+        detno            = iddet[filter_index],
+        hits_totnum      = totnum[filter_index],
+        edep             = VectorOfArrays(edep[filter_index] .*1000 *u"keV"),
+        pos              = position[filter_index]
+    )
+    return events
+end
+
+
+
+
 function read_AE_params(filename::String)
     fit_params = JSON.parsefile(filename)
     tt = Table(detector=[], set=[], energy=[], scale=[], sig=[], mu=[], C=[], l=[], e=[], t=[], scale_err=[], sig_err=[], mu_err=[], C_err=[], l_err=[], e_err=[], t_err=[])
@@ -48,220 +170,6 @@ function get_cut(fit_params, ch, set)
 end
 
 
-function peak_model(x, par)
-    scale = par[1]
-    σ     = par[2]
-    μ     = par[3]
-    
-    #step = x <= µ ? par[4] : par[5]
-    if length(x) > 1
-        step = []
-        for i in x
-            push!(step, i <= µ ? par[4] : par[5])
-        end
-        #mwa_step = isodd(round(length(x)/4)) ? Int.(round(length(x)/4)) : Int.(round(length(x)/4)-1)
-        s = 4 * par[2] / 0.1
-        mwa_step = isodd(Int.(round(s))) ? Int.(round(s)) : Int.(round(s)) + 1
-        step = mwa(Array{Float64,1}(step),mwa_step)
-    else
-        step = x <= µ ? par[4] : par[5]
-    end
-    return scale .* exp.(-0.5 * ((x .- μ).^2) / (σ^2)) ./ (sqrt(2 * π * σ^2)) .+ step
-end
-function peak_model2(par, x)
-    scale = par.scale
-    σ     = par.σ
-    μ     = par.µ
-    cp0   = par.cp0
-    #m0    = par.m0
-    cp1   = par.cp1
-    #m1    = par.m1
-#     s     = par.s
-    
-    if length(x) > 1
-        step = []
-        for i in x
-            push!(step, i <= µ ? cp0 : cp1)
-        end
-        s = 4 * σ / 0.1
-#         mwa_step = isodd(round(length(x)/4)) ? Int.(round(length(x)/4)) : Int.(round(length(x)/4)-1)
-        mwa_step = isodd(Int.(round(s))) ? Int.(round(s)) : Int.(round(s)) + 1
-        step = mwa(Array{Float64,1}(step),mwa_step)
-    else
-        step = x <= µ ? cp0 : cp1
-    end
-    return @. scale * exp(-0.5 * ((x - μ)^2) / (σ^2)) / (sqrt(2 * π * σ^2)) + step
-end
-
-function model(x, par)
-    scale = par[1]
-    σ     = par[2]
-    μ     = par[3]
-    cp0   = par[4]
-    m1    = par[5]
-    #m2    = par[9]
-    return @. scale * exp(-0.5 * ((x - μ)^2) / (σ^2)) / (sqrt(2 * π * σ^2)) + m1 * x + cp0
-end
-function model2(par, x)
-    scale = par.scale
-    σ     = par.σ
-    μ     = par.µ
-    cp0   = par.cp0
-    m1    = par.m1
-    #m2    = par[9]
-    return @. scale * exp(-0.5 * ((x - μ)^2) / (σ^2)) / (sqrt(2 * π * σ^2)) + m1 * x + cp0
-end
-function double_model(x, par)
-    scale = par[1]
-    σ     = par[2]
-    μ     = par[3]
-    scale2 = par[4]
-    σ2     = par[5]
-    μ2     = par[6]
-    cp0   = par[7]
-    m1    = par[8]
-    #m2    = par[9]
-    return @. scale * exp(-0.5 * ((x - μ)^2) / (σ^2)) / (sqrt(2 * π * σ^2)) + scale2 * exp(-0.5 * ((x - μ2)^2) / (σ2^2)) / (sqrt(2 * π * σ2^2)) + m1 * x + cp0# + m2 * x
-end
-function double_model2(par,x)
-    scale = par.scale
-    σ     = par.σ
-    μ     = par.µ
-    scale2 = par.scale2
-    σ2     = par.σ2
-    μ2     = par.µ2
-    cp0   = par.cp0
-    m1    = par.m1
-    #m2    = par[9]
-    return @. scale * exp(-0.5 * ((x - μ)^2) / (σ^2)) / (sqrt(2 * π * σ^2)) + scale2 * exp(-0.5 * ((x - μ2)^2) / (σ2^2)) / (sqrt(2 * π * σ2^2)) + m1 * x + cp0# + m2 * x
-end
-function tail_model(x, par)
-    scale = par[1]
-    σ     = par[2]
-    μ     = par[3]
-    C     = par[4]
-    l     = par[5]
-    e     = par[6]
-    t     = par[7]
-    d     = 0
-    return @. scale * exp(-0.5 * ((x - μ)^2) / (σ^2)) / (sqrt(2 * π * σ^2)) + C * (exp(e*(x-l)) + d) / (exp((x-l)/t) +1)
-end
-function tail_model2(par, x)
-    scale = par.scale
-    σ     = par.σ
-    μ     = par.µ
-    C     = par.C
-    l     = par.l
-    e     = par.e
-    t     = par.t
-    d     = 0
-    return @. scale * exp(-0.5 * ((x - μ)^2) / (σ^2)) / (sqrt(2 * π * σ^2)) + C * (exp(e*(x-l)) + d) / (exp((x-l)/t) +1)
-end
-@. linmodel(x, p) = p[1]*x + p[2]
-@. hypmodel_simple(x, p) = sqrt(p[1]+p[2]/x)
-@. hypmodel(x, p) = sqrt(p[1]+p[2]/(x^2))
-@. poly3model(x, p) = p[1]*x^3 + p[2]*x^2 + p[3]*x + p[4]
-@. atanmodel(x, p) = p[1] * atan(p[2]*x + p[3]) + p[4]
-
-function fit_bat(hist, fit_function, prior, fit_ranges; nsamples=1*10^5, nchains=4, second_ff=fit_function)
-
-    likelihood = let h = hist, f = fit_function
-        # Histogram counts for each bin as an array:
-        observed_counts = h.weights
-
-        # Histogram binning:
-        bin_edges = h.edges[1]
-        bin_edges_left = bin_edges[1:end-1]
-        bin_edges_right = bin_edges[2:end]
-        bin_widths = bin_edges_right - bin_edges_left
-        bin_centers = (bin_edges_right + bin_edges_left) / 2
-
-        params -> begin
-            # Log-likelihood for a single bin:
-            function bin_log_likelihood(i)
-                # Simple mid-point rule integration of fit function `f` over bin:
-                expected_counts = bin_widths[i] * f(params, bin_centers[i])
-                logpdf(Poisson(expected_counts), observed_counts[i])
-            end
-
-            # Sum log-likelihood over bins:
-            idxs = eachindex(observed_counts)
-            ll_value = bin_log_likelihood(idxs[1])
-            for i in idxs[2:end]
-                ll_value += bin_log_likelihood(i)
-            end
-
-            # Wrap `ll_value` in `LogDVal` so BAT knows it's a log density-value.
-            return LogDVal(ll_value)
-        end
-    end
-    parshapes = varshape(prior)
-    posterior = PosteriorDensity(likelihood, prior);
-    
-    pretunesamples = 10000
-    max_ncycles = 30
-    T = Float64
-    tuning = BAT.AdaptiveMetropolisTuning(
-        r = 1.0,
-        λ = 0.5,
-        α = 0.05..0.9,
-        β = 1.5,
-        c = 1e-4..1e2
-    )
-    convergence = BAT.BrooksGelmanConvergence(
-        threshold = T(5),
-        corrected = false
-    )
-    init = BAT.MCMCInitStrategy(
-        init_tries_per_chain = 8..128,
-        max_nsamples_init = pretunesamples,
-        max_nsteps_init = pretunesamples * 10,
-        max_time_init = Inf
-    )
-    burnin = BAT.MCMCBurninStrategy(
-        max_nsamples_per_cycle = pretunesamples,
-        max_nsteps_per_cycle = pretunesamples * 10,
-        max_time_per_cycle = Inf,
-        max_ncycles = max_ncycles
-    )
-    parshapes = varshape(prior)
-    posterior = PosteriorDensity(likelihood, prior);
-    nsamples = 1*10^4
-    nchains = 4
-    
-    
-    samples = bat_sample(Philox4x((123, 456)), posterior, (nsamples, nchains), MetropolisHastings(),
-        max_nsteps = 10 * nsamples,
-        max_time = Inf,
-        tuning = tuning,
-        init = init,
-        burnin = burnin,
-        convergence = convergence,
-    ).result;
-    params = mode(samples)[1]
-    error = std(samples)[1]
-    # println("Truth: $p0")
-    println("Mode: $(mode(samples))")
-    println("Stddev: $(std(samples))")
-
-    fitf = RadiationSpectra.FitFunction{Float64}( second_ff, 1, length(params));
-    # set_parameter_bounds!(fitf, bounds)
-    RadiationSpectra.set_fitranges!(fitf, (fit_ranges, ) )
-    
-    par = []
-    err = []
-    for x in eachindex(params)
-        push!(par, params[x])
-        push!(err, error[x])
-    end
-#     params = [params.scale[1], params.σ[1], params.µ[1], params.scale2[1], params.σ2[1], params.µ2[1], params.cp0[1], params.m1[1]]
-#     error = [error.scale[1], error.σ[1], error.µ[1], error.scale2[1], error.σ2[1], error.µ2[1], error.cp0[1], error.m1[1]]
-    fitf.fitted_parameters = par
-    
-    return par, err, fitf
-end
-
-
 function find_intersect(samples, threshold::Real, noisefilter = 1)
     if noisefilter < 1 noisefilter = 1 end
     if length(samples) < 1 error("Empty array") end
@@ -293,9 +201,9 @@ function find_intersect(samples, threshold::Real, noisefilter = 1)
     return NaN
 end
 
-simdir          = "/remote/ceph/group/gerda/data/simulation/gerda-mage-sim"
-mapping_file    = "$simdir/UTILS/det-data/ged-mapping.json"
-parameters_file = "$simdir/UTILS/det-data/ged-parameters.json"
+simdir_old      = "/remote/ceph/group/gerda/data/simulation/gerda-mage-sim"
+mapping_file    = "$simdir_old/UTILS/det-data/ged-mapping.json"
+parameters_file = "$simdir_old/UTILS/det-data/ged-parameters.json"
 
 
 #>------- Moving Window Average -----------------------<#
