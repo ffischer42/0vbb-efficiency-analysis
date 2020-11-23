@@ -28,93 +28,73 @@ parameters = open(parameters_file) do f
     return temp
 end;
 
-function root_to_typedtable(filename; hits_threshold=0.005, number_of_events=0, E_lim=0.3, mult_lim=1) # 0 = all
-    file = TFile(filename)
 
-    tree = file["fTree"];
+#########################################
+# Read / Create h5 sim file #############
+function readcreateh5(filepath::String, output_path::String; read::Bool=true, overwrite::Bool=false, 
+    max_refine::Int=4)
+config_filename = filepath
+ssd_config_file = filepath
+#output_path *= split(basename(filepath), ".")[1]*"/"
+if !isdir(output_path)
+    mkdir(output_path)
+end
+h5_sim_file = joinpath(output_path, split(basename(config_filename), ".config")[1]*".h5")
 
-    tt = Table(eventnumber = tree.eventnumber[:],
-        hits_iddet   = tree.hits_iddet[:],
-        hits_totnum  = tree.hits_totnum[:],
-        hits_edep    = tree.hits_edep[:],
-        hits_xpos    = tree.hits_xpos[:] .* 10, # mm
-        hits_ypos    = tree.hits_ypos[:] .* 10, # mm
-        hits_zpos    = tree.hits_zpos[:] .* 10) # mm
+T = Float32
+is_file = isfile(h5_sim_file)
 
-    #########################################
-    # Filter events without energy deposition
-    tt = tt |> @filter(_.hits_totnum != 0) |> Table;
-    tt = tt |> @filter(sum(_.hits_edep) >= E_lim) |> Table;
+if overwrite 
+    is_file = false
+end
 
-    i = 1
-    if number_of_events != 0
-        i_max = number_of_events
+s = if is_file
+    if read 
+            @info("File already exist. Read in starts..")
+
+            s = HDF5.h5open(h5_sim_file, "r") do h5f
+                Simulation(LegendHDF5IO.readdata(h5f, "SSD_Simulation"));
+        end;
+        SSD.set_charge_drift_model!(s, ADLChargeDriftModel(T = SSD.get_precision_type(s.detector)));
+        return s
     else
-        i_max = size(tt, 1)
+        @info("File already exist. Read = false")
     end
-    
+else
+    @info("File does not exist. Simulation starts..")
+    s = Simulation{T}(ssd_config_file)
 
-    evt_num      = []
-    multiplicity = []
-    iddet        = []
-    totnum       = []
-    edep         = []
-    position     = []
-
-    p = Progress(i_max, dt=0.5,
-                 barglyphs=BarGlyphs('|','█', ['▁' ,'▂' ,'▃' ,'▄' ,'▅' ,'▆', '▇'],' ','|',),
-                 barlen=10)
-    @info("Number of events = "*string(i_max))
-    @info("Separating events by detector id and filter by minimum energy deposition threshold = "*string(hits_threshold)*" MeV")
-    #########################################
-    # Separate events by detector ###########
-    while i <= i_max
-        multi = 0
-        for det in unique(tt[i].hits_iddet)
-            index = findall(x->x==det, tt[i].hits_iddet)
-            if sum( tt[i].hits_edep[ index ] ) >= hits_threshold
-                multi += 1
-                upside_down = 1
-                if parameters[sim_to_channel[det][2]]["upside_down"] == true
-                    upside_down = -1
-                end
-
-                hits_iddet_mapped = []
-                for i in index
-                    push!(hits_iddet_mapped, sim_to_channel[det][1])
-                end
-                push!(iddet, Array{Int64,1}(hits_iddet_mapped))
-                push!(edep,  tt[i].hits_edep[ index ])
-                push!(position, [ SVector{3}(([ tt[i].hits_xpos[k] .- parameters[sim_to_channel[det][2]]["detcenter_x"], 
-                                                tt[i].hits_ypos[k] .- parameters[sim_to_channel[det][2]]["detcenter_y"], 
-                                                upside_down .* (tt[i].hits_zpos[k] .- parameters[sim_to_channel[det][2]]["detcenter_z"] .+ upside_down * parameters[sim_to_channel[det][2]]["height"]/2) 
-                                    ] * u"mm")...) for k in index ])
-            end        
-        end
-        
-        j = 1
-        while j <= multi
-            push!(evt_num, tt[i].eventnumber)
-            push!(totnum, tt[i].hits_totnum)
-            push!(multiplicity, multi)
-            j += 1
-        end
-        next!(p)
-        i += 1
+    calculate_electric_potential!(  s, 
+                                    convergence_limit = 1e-7, 
+                                    use_nthreads = Base.Threads.nthreads(),
+                                    max_refinements = max_refine, 
+                                    max_n_iterations = 500000,
+                                    init_grid_spacing = (T(1e-3), T(2e-3), T(2e-3)),
+                                    refinement_limits = (T(1e-5), T(1e-1), T(1e-5)),
+                                    min_grid_spacing  = (T(2e-6), T(1e-1), T(2e-6)),
+                                    depletion_handling = true )
+    SSD.calculate_electric_field!(s, n_points_in_φ = 72)
+    SSD.set_charge_drift_model!(s, ADLChargeDriftModel(T = T))
+    SSD.apply_charge_drift_model!(s)
+    for contact in s.detector.contacts
+        calculate_weighting_potential!( s, contact.id, 
+                                        convergence_limit = 1e-7, 
+                                        use_nthreads = Base.Threads.nthreads(),
+                                        max_refinements = 4, 
+                                        max_n_iterations = 500000,
+                                        init_grid_spacing = (T(1e-3), T(2e-3), T(2e-3)),
+                                        refinement_limits = (T(1e-4), T(1e-1), T(1e-4)),
+                                        min_grid_spacing  = (T(2e-6), T(1e-1), T(2e-6)),
+                                        n_points_in_φ = 2, 
+                                        verbose = true )
     end
-    tt = nothing
-    #########################################
-    # Create output table ###################
-    filter_index = findall(x -> x == mult_lim, multiplicity)
+    # IO
+    HDF5.h5open(h5_sim_file, "w") do h5f
+        LegendHDF5IO.writedata( h5f, "SSD_Simulation", NamedTuple(s)  )
+    end    
 
-    events = Table(evtno = evt_num[filter_index], 
-        event_mult       = multiplicity[filter_index], 
-        detno            = iddet[filter_index],
-        hits_totnum      = totnum[filter_index],
-        edep             = VectorOfArrays(edep[filter_index] .*1000 *u"keV"),
-        pos              = position[filter_index]
-    )
-    return events
+    return s
+end
 end
 
 

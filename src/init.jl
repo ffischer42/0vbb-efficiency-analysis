@@ -35,7 +35,7 @@ using ValueShapes
 using Random123
 
 SSD = SolidStateDetectors
-T = Float32
+T = Float64
 @. gauss(x,p) = p[3]*(sqrt(2*pi*p[2]))^(-1) .* exp.(-(x .- p[1]).^2 ./ (2*p[2]^2));
 
 @. model(x,p) = p[3]*(sqrt(2*pi*p[2]))^(-1) .* exp.(-(x .- p[1]).^2 ./ (2*p[2]^2))

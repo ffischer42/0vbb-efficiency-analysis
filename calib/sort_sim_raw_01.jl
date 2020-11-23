@@ -12,7 +12,6 @@ simdir          = "/remote/ceph2/group/gerda/data/mpik/gerda-simulations/gerda-g
 simdir_old      = "/remote/ceph/group/gerda/data/simulation/gerda-mage-sim"
 mapping_file    = simdir_old*"/UTILS/det-data/ged-mapping.json"
 parameters_file = simdir_old*"/UTILS/det-data/ged-parameters.json"
-config_dir      = "/res/Impurity_Scan/config-dep/"
 
 #
 # Load packages and functions
@@ -97,10 +96,10 @@ for filename in filenames
             detno        = [Array{Int64,1}(zeros(length(tt[i].hits_iddet)) .+ sim_to_channel[det][1])],
             hits_totnum  = [length(tt[i].hits_edep)],
             edep         = [tt[i].hits_edep],
-            pos          = [ SVector{3}(([ tt[i].hits_xpos[k] .- parameters[sim_to_channel[det][2]]["detcenter_x"], 
+            pos          = [[ SVector{3}(([ tt[i].hits_xpos[k] .- parameters[sim_to_channel[det][2]]["detcenter_x"], 
                                         tt[i].hits_ypos[k] .- parameters[sim_to_channel[det][2]]["detcenter_y"], 
                                         upside_down .* (tt[i].hits_zpos[k] .- parameters[sim_to_channel[det][2]]["detcenter_z"] .+ upside_down * parameters[sim_to_channel[det][2]]["height"]/2) 
-                            ] * u"mm")...) for k in eachindex(tt[i].hits_xpos) ]
+                            ] * u"mm")...) for k in eachindex(tt[i].hits_xpos) ]]
                 )
             )
             next!(prog)
