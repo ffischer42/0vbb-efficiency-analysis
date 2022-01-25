@@ -1,0 +1,686 @@
+{
+    "GD02B": {
+        "par": {
+            "name": "GD02B",
+            "GBP": 3104,
+            "chi2": 0.079,
+            "tau": 121,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 2
+        },
+        "par_old": {
+            "ch": 2,
+            "name": "GD02B",
+            "GBP": 3076,
+            "tau": 115,
+            "chi2": 0.001
+        }
+    },
+    "GD76B": {
+        "par": {
+            "name": "GD76B",
+            "GBP": 3147,
+            "chi2": 0.0,
+            "tau": 144,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 17
+        },
+        "par_old": {
+            "ch": 17,
+            "name": "GD76B",
+            "GBP": 3147,
+            "tau": 144,
+            "chi2": 0.0007
+        }
+    },
+    "ANG1": {
+        "par": {
+            "name": "ANG1",
+            "GBP": 500,
+            "chi2": 0.32,
+            "tau": 110,
+            "Cd": 5.0,
+            "Cf": 0.206,
+            "ch": 36
+        },
+        "par_old": {
+            "ch": 36,
+            "name": "ANG1",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "ANG5": {
+        "par": {
+            "name": "ANG5",
+            "GBP": 2717,
+            "chi2": 0.385,
+            "tau": 134,
+            "Cd": 15.0,
+            "Cf": 0.09,
+            "ch": 8
+        },
+        "par_old": {
+            "ch": 8,
+            "name": "ANG5",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "GTF112": {
+        "par": {
+            "name": "GTF112",
+            "GBP": 0,
+            "chi2": 0.0,
+            "tau": 0,
+            "Cd": 0.0,
+            "Cf": 0.0,
+            "ch": 37
+        },
+        "par_old": {
+            "ch": 37,
+            "name": "GTF112",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "GD02A": {
+        "par": {
+            "name": "GD02A",
+            "GBP": 5172,
+            "chi2": 0.0,
+            "tau": 115,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 11
+        },
+        "par_old": {
+            "ch": 11,
+            "name": "GD02A",
+            "GBP": 5172,
+            "tau": 115,
+            "chi2": 0.0041
+        }
+    },
+    "GD35C": {
+        "par": {
+            "name": "GD35C",
+            "GBP": 7475,
+            "chi2": 0.272,
+            "tau": 87,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 19
+        },
+        "par_old": {
+            "ch": 19,
+            "name": "GD35C",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "GD61B": {
+        "par": {
+            "name": "GD61B",
+            "GBP": 2760,
+            "chi2": 0.0,
+            "tau": 124,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 26
+        },
+        "par_old": {
+            "ch": 26,
+            "name": "GD61B",
+            "GBP": 2760,
+            "tau": 124,
+            "chi2": 0.008
+        }
+    },
+    "GD61C": {
+        "par": {
+            "name": "GD61C",
+            "GBP": 2337,
+            "chi2": 0.0,
+            "tau": 109,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 16
+        },
+        "par_old": {
+            "ch": 16,
+            "name": "GD61C",
+            "GBP": 2337,
+            "tau": 109,
+            "chi2": 0.001
+        }
+    },
+    "GD89B": {
+        "par": {
+            "name": "GD89B",
+            "GBP": 1789,
+            "chi2": 0.0,
+            "tau": 124,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 5
+        },
+        "par_old": {
+            "ch": 5,
+            "name": "GD89B",
+            "GBP": 1789,
+            "tau": 124,
+            "chi2": 0.0062
+        }
+    },
+    "GD32C": {
+        "par": {
+            "name": "GD32C",
+            "GBP": 3228,
+            "chi2": 0.0,
+            "tau": 103,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 14
+        },
+        "par_old": {
+            "ch": 14,
+            "name": "GD32C",
+            "GBP": 3228,
+            "tau": 103,
+            "chi2": 0.0041
+        }
+    },
+    "ANG4": {
+        "par": {
+            "name": "ANG4",
+            "GBP": 300,
+            "chi2": 0.383,
+            "tau": 115,
+            "Cd": 5.0,
+            "Cf": 0.222,
+            "ch": 29
+        },
+        "par_old": {
+            "ch": 29,
+            "name": "ANG4",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "GD91B": {
+        "par": {
+            "name": "GD91B",
+            "GBP": 1910,
+            "chi2": 0.0,
+            "tau": 131,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 25
+        },
+        "par_old": {
+            "ch": 25,
+            "name": "GD91B",
+            "GBP": 1910,
+            "tau": 131,
+            "chi2": 0.0911
+        }
+    },
+    "GD02D": {
+        "par": {
+            "name": "GD02D",
+            "GBP": 1627,
+            "chi2": 0.0,
+            "tau": 106,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 6
+        },
+        "par_old": {
+            "ch": 6,
+            "name": "GD02D",
+            "GBP": 1627,
+            "tau": 106,
+            "chi2": 0.0041
+        }
+    },
+    "GD35A": {
+        "par": {
+            "name": "GD35A",
+            "GBP": 1818,
+            "chi2": 0.059,
+            "tau": 120,
+            "Cd": 52.0,
+            "Cf": 0.52,
+            "ch": 24
+        },
+        "par_old": {
+            "ch": 24,
+            "name": "GD35A",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "ANG2": {
+        "par": {
+            "name": "ANG2",
+            "GBP": 600,
+            "chi2": 0.0,
+            "tau": 100,
+            "Cd": 5.5,
+            "Cf": 0.246,
+            "ch": 27
+        },
+        "par_old": {
+            "ch": 27,
+            "name": "ANG2",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "GD61A": {
+        "par": {
+            "name": "GD61A",
+            "GBP": 2739,
+            "chi2": 0.0,
+            "tau": 112,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 4
+        },
+        "par_old": {
+            "ch": 4,
+            "name": "GD61A",
+            "GBP": 2739,
+            "tau": 112,
+            "chi2": 0.0179
+        }
+    },
+    "GD91A": {
+        "par": {
+            "name": "GD91A",
+            "GBP": 7285,
+            "chi2": 0.176,
+            "tau": 110,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 0
+        },
+        "par_old": {
+            "ch": 0,
+            "name": "GD91A",
+            "GBP": 4997,
+            "tau": 137,
+            "chi2": 0.0446
+        }
+    },
+    "ANG3": {
+        "par": {
+            "name": "ANG3",
+            "GBP": 4340,
+            "chi2": 0.185,
+            "tau": 115,
+            "Cd": 103.0,
+            "Cf": 0.31,
+            "ch": 10
+        },
+        "par_old": {
+            "ch": 10,
+            "name": "ANG3",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "GD89D": {
+        "par": {
+            "name": "GD89D",
+            "GBP": 4507,
+            "chi2": 0.0,
+            "tau": 127,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 21
+        },
+        "par_old": {
+            "ch": 21,
+            "name": "GD89D",
+            "GBP": 4507,
+            "tau": 127,
+            "chi2": 0.0041
+        }
+    },
+    "GD79C": {
+        "par": {
+            "name": "GD79C",
+            "GBP": 3073,
+            "chi2": 0.0,
+            "tau": 135,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 23
+        },
+        "par_old": {
+            "ch": 23,
+            "name": "GD79C",
+            "GBP": 3073,
+            "tau": 135,
+            "chi2": 0.004
+        }
+    },
+    "GD02C": {
+        "par": {
+            "name": "GD02C",
+            "GBP": 4739,
+            "chi2": 0.0,
+            "tau": 112,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 31
+        },
+        "par_old": {
+            "ch": 31,
+            "name": "GD02C",
+            "GBP": 4739,
+            "tau": 112,
+            "chi2": 0.004
+        }
+    },
+    "GD79B": {
+        "par": {
+            "name": "GD79B",
+            "GBP": 4312,
+            "chi2": 0.0,
+            "tau": 99,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 32
+        },
+        "par_old": {
+            "ch": 32,
+            "name": "GD79B",
+            "GBP": 4312,
+            "tau": 99,
+            "chi2": 0.0049
+        }
+    },
+    "GD00D": {
+        "par": {
+            "name": "GD00D",
+            "GBP": 3149,
+            "chi2": 0.0,
+            "tau": 101,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 22
+        },
+        "par_old": {
+            "ch": 22,
+            "name": "GD00D",
+            "GBP": 3149,
+            "tau": 101,
+            "chi2": 0.0035
+        }
+    },
+    "GD32B": {
+        "par": {
+            "name": "GD32B",
+            "GBP": 3200,
+            "chi2": 0.0,
+            "tau": 105,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 12
+        },
+        "par_old": {
+            "ch": 12,
+            "name": "GD32B",
+            "GBP": 3200,
+            "tau": 105,
+            "chi2": 0.0441
+        }
+    },
+    "GD89A": {
+        "par": {
+            "name": "GD89A",
+            "GBP": 2339,
+            "chi2": 0.0,
+            "tau": 112,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 35
+        },
+        "par_old": {
+            "ch": 35,
+            "name": "GD89A",
+            "GBP": 2339,
+            "tau": 112,
+            "chi2": 0.0055
+        }
+    },
+    "GD89C": {
+        "par": {
+            "name": "GD89C",
+            "GBP": 3268,
+            "chi2": 0.0,
+            "tau": 126,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 15
+        },
+        "par_old": {
+            "ch": 15,
+            "name": "GD89C",
+            "GBP": 3268,
+            "tau": 126,
+            "chi2": 0.0021
+        }
+    },
+    "GD35B": {
+        "par": {
+            "name": "GD35B",
+            "GBP": 4290,
+            "chi2": 3.902,
+            "tau": 115,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 1
+        },
+        "par_old": {
+            "ch": 1,
+            "name": "GD35B",
+            "GBP": 4290,
+            "tau": 129,
+            "chi2": 0.0524
+        }
+    },
+    "GD00C": {
+        "par": {
+            "name": "GD00C",
+            "GBP": 4730,
+            "chi2": 0.0,
+            "tau": 113,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 18
+        },
+        "par_old": {
+            "ch": 18,
+            "name": "GD00C",
+            "GBP": 4730,
+            "tau": 113,
+            "chi2": 0.0041
+        }
+    },
+    "GD76C": {
+        "par": {
+            "name": "GD76C",
+            "GBP": 3496,
+            "chi2": 0.0,
+            "tau": 110,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 20
+        },
+        "par_old": {
+            "ch": 20,
+            "name": "GD76C",
+            "GBP": 3496,
+            "tau": 110,
+            "chi2": 0.0338
+        }
+    },
+    "GD00A": {
+        "par": {
+            "name": "GD00A",
+            "GBP": 5076,
+            "chi2": 0.0,
+            "tau": 116,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 30
+        },
+        "par_old": {
+            "ch": 30,
+            "name": "GD00A",
+            "GBP": 5076,
+            "tau": 116,
+            "chi2": 0.0027
+        }
+    },
+    "GD91D": {
+        "par": {
+            "name": "GD91D",
+            "GBP": 3177,
+            "chi2": 0.0,
+            "tau": 129,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 33
+        },
+        "par_old": {
+            "ch": 33,
+            "name": "GD91D",
+            "GBP": 3177,
+            "tau": 129,
+            "chi2": 0.0338
+        }
+    },
+    "GD32A": {
+        "par": {
+            "name": "GD32A",
+            "GBP": 3255,
+            "chi2": 0.0,
+            "tau": 109,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 13
+        },
+        "par_old": {
+            "ch": 13,
+            "name": "GD32A",
+            "GBP": 3255,
+            "tau": 109,
+            "chi2": 0.0011
+        }
+    },
+    "RG2": {
+        "par": {
+            "name": "RG2",
+            "GBP": 123,
+            "chi2": 0.35,
+            "tau": 156,
+            "Cd": 6.0,
+            "Cf": 0.86,
+            "ch": 28
+        },
+        "par_old": {
+            "ch": 28,
+            "name": "RG2",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    },
+    "GD00B": {
+        "par": {
+            "name": "GD00B",
+            "GBP": 2476,
+            "chi2": 0.066,
+            "tau": 103,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 3
+        },
+        "par_old": {
+            "ch": 3,
+            "name": "GD00B",
+            "GBP": 2262,
+            "tau": 126,
+            "chi2": 0.0032
+        }
+    },
+    "GD91C": {
+        "par": {
+            "name": "GD91C",
+            "GBP": 2380,
+            "chi2": 0.0,
+            "tau": 109,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 7
+        },
+        "par_old": {
+            "ch": 7,
+            "name": "GD91C",
+            "GBP": 2380,
+            "tau": 109,
+            "chi2": 0.0098
+        }
+    },
+    "GD32D": {
+        "par": {
+            "name": "GD32D",
+            "GBP": 3048,
+            "chi2": 0.0,
+            "tau": 106,
+            "Cd": 50.0,
+            "Cf": 0.35,
+            "ch": 34
+        },
+        "par_old": {
+            "ch": 34,
+            "name": "GD32D",
+            "GBP": 3048,
+            "tau": 106,
+            "chi2": 0.0008
+        }
+    },
+    "RG1": {
+        "par": {
+            "name": "RG1",
+            "GBP": 1745,
+            "chi2": 0.108,
+            "tau": 160,
+            "Cd": 50.0,
+            "Cf": 0.41,
+            "ch": 9
+        },
+        "par_old": {
+            "ch": 9,
+            "name": "RG1",
+            "GBP": null,
+            "tau": null,
+            "chi2": null
+        }
+    }
+}
